@@ -18,6 +18,14 @@
   --color-sidebar-primary: var(--sidebar-primary);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar: var(--sidebar);
+  --color-quartile-1: var(--quartile-1);
+  --color-quartile-2: var(--quartile-2);
+  --color-quartile-3: var(--quartile-3);
+  --color-quartile-4: var(--quartile-4);
+  --color-quartile-1-foreground: var(--quartile-1-foreground);
+  --color-quartile-2-foreground: var(--quartile-2-foreground);
+  --color-quartile-3-foreground: var(--quartile-3-foreground);
+  --color-quartile-4-foreground: var(--quartile-4-foreground);
   --color-chart-5: var(--chart-5);
   --color-chart-4: var(--chart-4);
   --color-chart-3: var(--chart-3);
@@ -72,7 +80,21 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
+  --radius: 0.5rem;
+  /* Quartile scale (Q1 best). Blue to orange is the pair that stays apart under
+     red-green colour-vision deficiency, and lightness also steps down from Q1
+     to Q4, so the scale survives greyscale. Cells always carry a "Q1".."Q4"
+     label as well, so colour is never the only cue. The -foreground tokens are
+     the darker (light theme) or lighter (dark theme) text colour used for the
+     label on a tint of the base colour. */
+  --quartile-1: oklch(0.55 0.17 252);
+  --quartile-2: oklch(0.68 0.1 225);
+  --quartile-3: oklch(0.78 0.14 80);
+  --quartile-4: oklch(0.62 0.19 38);
+  --quartile-1-foreground: oklch(0.42 0.16 252);
+  --quartile-2-foreground: oklch(0.45 0.09 225);
+  --quartile-3-foreground: oklch(0.45 0.1 70);
+  --quartile-4-foreground: oklch(0.45 0.17 35);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.145 0 0);
   --sidebar-primary: oklch(0.205 0 0);
@@ -107,6 +129,14 @@
   --chart-3: oklch(0.439 0 0);
   --chart-4: oklch(0.371 0 0);
   --chart-5: oklch(0.269 0 0);
+  --quartile-1: oklch(0.7 0.15 252);
+  --quartile-2: oklch(0.72 0.09 225);
+  --quartile-3: oklch(0.8 0.13 82);
+  --quartile-4: oklch(0.7 0.17 40);
+  --quartile-1-foreground: oklch(0.8 0.12 252);
+  --quartile-2-foreground: oklch(0.82 0.08 225);
+  --quartile-3-foreground: oklch(0.86 0.11 82);
+  --quartile-4-foreground: oklch(0.8 0.13 40);
   --sidebar: oklch(0.205 0 0);
   --sidebar-foreground: oklch(0.985 0 0);
   --sidebar-primary: oklch(0.488 0.243 264.376);

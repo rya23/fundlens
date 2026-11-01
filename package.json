@@ -12,13 +12,17 @@
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
-    "smoke:sources": "tsx scripts/smoke-sources.ts"
+    "smoke:sources": "tsx scripts/smoke-sources.ts",
+    "seed:dev": "tsx scripts/seed-dev.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",
     "@base-ui/react": "^1.9.0",
     "@electric-sql/pglite": "^0.5.14",
+    "@tanstack/react-table": "^9.3.1",
+    "@tanstack/react-virtual": "^3.14.24",
     "class-variance-authority": "^0.7.1",
+    "cmdk": "^1.1.1",
     "cn": "^0.5.0",
     "drizzle-orm": "^0.45.4",
     "lucide-react": "^1.61.0",

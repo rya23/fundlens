@@ -86,6 +86,19 @@ function toRankQuartile(
 }
 
 /**
+ * Quartile of `value` against precomputed cut points (e.g. a `category_stats`
+ * row), using the same boundaries and direction handling as `rankPeer`.
+ * 1 = best quartile per `direction`, 4 = worst.
+ */
+export function quartileFromCutPoints(
+  value: number,
+  cuts: QuartileCutPoints,
+  direction: PeerDirection
+): PeerQuartile {
+  return toRankQuartile(numericQuartile(value, cuts), direction);
+}
+
+/**
  * Percentage of peers that `value` outperforms, per `direction`. Ties split
  * credit evenly (the standard "average rank" convention): a peer exactly
  * equal to `value` counts as half-beaten, half-not.
