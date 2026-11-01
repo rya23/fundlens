@@ -9,18 +9,21 @@
  * before `endDate`, and feeds every instalment plus the final valuation into
  * `xirr` to produce the SIP's XIRR.
  *
- * NOTE: `NavPoint` is a minimal local type, defined here because this ticket
- * ran in parallel with the one that owns `src/lib/metrics/series.ts`. It
- * should be unified with that module's NAV series type later (see this
- * ticket's notes file).
+ * `navSeries` uses `series.ts`'s `NavSeries` (ISO string dates, sorted
+ * ascending, at most one point per date - the NavStore invariant), looked
+ * up via its `asOf`/`firstOnOrAfter`. `SipParams`/`SipInstalment` keep
+ * `Date` for due/nav/valuation dates (nicer for a date-picker UI and for
+ * feeding `xirr`'s `Date`-based `Cashflow`), converting to/from ISO strings
+ * only at the NAV lookup boundary.
  */
 
+import { asOf, firstOnOrAfter, subtractMonths } from "./series";
+import type { NavSeries } from "./series";
+import { na, ok } from "./types";
+import type { MetricResult } from "./types";
 import { xirr, type Cashflow, type XirrResult } from "./xirr";
 
-export interface NavPoint {
-  date: Date;
-  nav: number;
-}
+export type { NavPoint } from "./series";
 
 export interface SipInstalment {
   dueDate: Date;
@@ -45,9 +48,7 @@ export interface SipSimulation {
   xirr: XirrResult;
 }
 
-export type SipResult =
-  | { ok: true; value: SipSimulation }
-  | { ok: false; reason: SipFailureReason };
+export type SipResult = MetricResult<SipSimulation>;
 
 export interface SipParams {
   monthlyAmount: number;
@@ -55,24 +56,20 @@ export interface SipParams {
   endDate: Date;
 }
 
+function toISODate(date: Date): string {
+  return date.toISOString().slice(0, 10);
+}
+
 /**
  * Last day-of-month-aware "add N months" (Jan 31 + 1 month -> Feb 28/29).
- *
- * Operates in UTC throughout: `new Date("YYYY-MM-DD")` (how every date in
- * this module's inputs is expected to be constructed) parses as UTC
- * midnight, so mixing in local-time component getters/setters here would
- * shift the result by the local UTC offset.
+ * Delegates to `series.ts`'s calendar-exact `subtractMonths` (a negative
+ * month count adds) so SIP due-date arithmetic shares the same month/
+ * leap-year clamping as the rest of `src/lib/metrics/` instead of
+ * reimplementing it. Operates in UTC throughout, consistent with
+ * `new Date("YYYY-MM-DD")` parsing as UTC midnight.
  */
 function addMonthsClamped(date: Date, months: number): Date {
-  const year = date.getUTCFullYear();
-  const month = date.getUTCMonth();
-  const day = date.getUTCDate();
-
-  const lastDayOfTargetMonth = new Date(
-    Date.UTC(year, month + months + 1, 0)
-  ).getUTCDate();
-
-  return new Date(Date.UTC(year, month + months, Math.min(day, lastDayOfTargetMonth)));
+  return new Date(subtractMonths(toISODate(date), -months));
 }
 
 function generateDueDates(startDate: Date, endDate: Date): Date[] {
@@ -87,60 +84,33 @@ function generateDueDates(startDate: Date, endDate: Date): Date[] {
   return dueDates;
 }
 
-/** First NAV point with date >= `date`, assuming `series` is sorted ascending. */
-function firstNavOnOrAfter(
-  series: readonly NavPoint[],
-  date: Date
-): NavPoint | undefined {
-  return series.find((point) => point.date.getTime() >= date.getTime());
-}
-
-/** Last NAV point with date <= `date`, assuming `series` is sorted ascending. */
-function navAsOf(
-  series: readonly NavPoint[],
-  date: Date
-): NavPoint | undefined {
-  let result: NavPoint | undefined;
-  for (const point of series) {
-    if (point.date.getTime() <= date.getTime()) {
-      result = point;
-    } else {
-      break;
-    }
-  }
-  return result;
-}
-
 export function simulateSip(
-  navSeries: readonly NavPoint[],
+  navSeries: NavSeries,
   params: SipParams
 ): SipResult {
   if (navSeries.length === 0) {
-    return { ok: false, reason: "empty-nav-series" };
+    return na("empty-nav-series");
   }
 
   if (
     params.monthlyAmount <= 0 ||
     params.startDate.getTime() > params.endDate.getTime()
   ) {
-    return { ok: false, reason: "invalid-date-range" };
+    return na("invalid-date-range");
   }
 
-  const sortedSeries = [...navSeries].sort(
-    (a, b) => a.date.getTime() - b.date.getTime()
-  );
-
+  const endDateISO = toISODate(params.endDate);
   const dueDates = generateDueDates(params.startDate, params.endDate);
 
   const instalments: SipInstalment[] = [];
   for (const dueDate of dueDates) {
-    const navPoint = firstNavOnOrAfter(sortedSeries, dueDate);
+    const navPoint = firstOnOrAfter(navSeries, toISODate(dueDate));
     if (!navPoint) continue;
-    if (navPoint.date.getTime() > params.endDate.getTime()) continue;
+    if (navPoint.date > endDateISO) continue;
 
     instalments.push({
       dueDate,
-      navDate: navPoint.date,
+      navDate: new Date(navPoint.date),
       nav: navPoint.nav,
       amount: params.monthlyAmount,
       units: params.monthlyAmount / navPoint.nav,
@@ -148,7 +118,7 @@ export function simulateSip(
   }
 
   if (instalments.length === 0) {
-    return { ok: false, reason: "no-instalments" };
+    return na("no-instalments");
   }
 
   const invested = instalments.reduce((sum, i) => sum + i.amount, 0);
@@ -156,24 +126,21 @@ export function simulateSip(
 
   // Guaranteed to exist: every instalment's navDate is <= endDate, so at
   // least one NAV point on or before endDate exists.
-  const valuationPoint = navAsOf(sortedSeries, params.endDate)!;
+  const valuationPoint = asOf(navSeries, endDateISO)!;
   const currentValue = units * valuationPoint.nav;
 
   const cashflows: Cashflow[] = [
     ...instalments.map((i) => ({ date: i.navDate, amount: -i.amount })),
-    { date: valuationPoint.date, amount: currentValue },
+    { date: new Date(valuationPoint.date), amount: currentValue },
   ];
 
-  return {
-    ok: true,
-    value: {
-      instalments,
-      invested,
-      units,
-      valuationDate: valuationPoint.date,
-      valuationNav: valuationPoint.nav,
-      currentValue,
-      xirr: xirr(cashflows),
-    },
-  };
+  return ok({
+    instalments,
+    invested,
+    units,
+    valuationDate: new Date(valuationPoint.date),
+    valuationNav: valuationPoint.nav,
+    currentValue,
+    xirr: xirr(cashflows),
+  });
 }
