@@ -15,13 +15,12 @@ Next.js mutual fund screener (Tickertape-like, everything free). Work continues 
 
 | Ticket | State |
 | --- | --- |
-| 01 scaffold, 02 DB schema, 03 NAV store, 04 returns, 06 XIRR/SIP/peers, 07 data sources, 08 benchmarks, 09 backfill | **Resolved**, merged on `mf-screener` |
-| 05 risk ratios | Was finishing when the session ended. Check branch `worktree-agent-af3d78ea692c94b6b`: if it has commits ahead of `mf-screener` and `npm run typecheck && npm test` pass there, merge it; otherwise redo the ticket |
+| 01 scaffold, 02 DB schema, 03 NAV store, 04 returns, 05 risk ratios, 06 XIRR/SIP/peers, 07 data sources, 08 benchmarks, 09 backfill | **Resolved**, merged on `mf-screener` |
 | 12 screener page | **Partial WIP** on branch `worktree-agent-abcf5286fc0b64882` (commit 0893cd8): data layer, URL state, presets, `seed:dev`, multi-select done. Missing: table UI, filter panel, page wiring, browser check. Merge `mf-screener` into it and finish |
-| 10 precompute, 11 nightly + GH Actions | Not started (blocked by 05) |
+| 10 precompute, 11 nightly + GH Actions | Not started (unblocked) |
 | 13 fund detail, 14 compare, 15 SIP calculator, 16 polish + E2E | Not started |
 
-Suggested order to reach a usable MVP: 05 -> 10 -> 12 -> 13 -> 15 -> 11 -> 14 -> 16.
+Suggested order to reach a usable MVP: 10 -> 12 -> 13 -> 15 -> 11 -> 14 -> 16.
 
 ## Decisions made during implementation
 
@@ -52,4 +51,4 @@ npm run dev
 
 ## Cleanup
 
-Agent git worktrees live under `.claude/worktrees/` (ignored by lint, tests and git). Once branches 05 and 12 are merged, remove them with `git worktree remove <path>` and delete the `worktree-agent-*` branches.
+Agent git worktrees live under `.claude/worktrees/` (ignored by lint, tests and git). Once branch 12 is merged, remove them with `git worktree remove <path>` and delete the `worktree-agent-*` branches.

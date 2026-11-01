@@ -1,6 +1,6 @@
 # 05 Metrics: risk ratios
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 04
 
 Spec: `docs/PLAN.md` (Metric defaults and math).
