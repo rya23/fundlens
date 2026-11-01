@@ -1,6 +1,6 @@
 # 01 Scaffold the Next.js app
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: none
 
 Spec: `../spec.md`, `docs/PLAN.md` (Stack, Architecture).
