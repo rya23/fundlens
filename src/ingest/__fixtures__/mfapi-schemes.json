@@ -1,0 +1,62 @@
+[
+  {
+    "schemeCode": 100027,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Half Yearly Dividend",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 100028,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Quaterly Dividend",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 100029,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Growth",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 100030,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Annual Dividend",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 100031,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF - ST-Dividend",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 100032,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF - ST-Growth",
+    "isinGrowth": null,
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 122639,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Direct Plan - Growth",
+    "isinGrowth": "INF879O01027",
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 122640,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Regular Plan - Growth",
+    "isinGrowth": "INF879O01019",
+    "isinDivReinvestment": null
+  },
+  {
+    "schemeCode": 153964,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Direct Plan - Monthly IDCW Payout",
+    "isinGrowth": null,
+    "isinDivReinvestment": "INF879O01308"
+  },
+  {
+    "schemeCode": 153965,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Regular Plan - Monthly IDCW Payout",
+    "isinGrowth": null,
+    "isinDivReinvestment": "INF879O01324"
+  }
+]

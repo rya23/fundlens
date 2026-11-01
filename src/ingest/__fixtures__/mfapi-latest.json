@@ -1,0 +1,90 @@
+[
+  {
+    "schemeCode": 100027,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Half Yearly Dividend",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "10.72050",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 100028,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Quaterly Dividend",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "10.61910",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 100029,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Growth",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "18.97360",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 100030,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF-Annual Dividend",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "10.71150",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 100031,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF - ST-Dividend",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "10.10530",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 100032,
+    "schemeName": "Grindlays Super Saver Income Fund-GSSIF - ST-Growth",
+    "fundHouse": "Standard Chartered Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Income",
+    "isinGrowth": null,
+    "isinDivReinvestment": null,
+    "nav": "16.42990",
+    "date": "29-05-2008"
+  },
+  {
+    "schemeCode": 122639,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Direct Plan - Growth",
+    "fundHouse": "PPFAS Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Equity Scheme - Flexi Cap Fund",
+    "isinGrowth": "INF879O01027",
+    "isinDivReinvestment": null,
+    "nav": "89.23320",
+    "date": "30-10-2026"
+  },
+  {
+    "schemeCode": 122640,
+    "schemeName": "Parag Parikh Flexi Cap Fund - Regular Plan - Growth",
+    "fundHouse": "PPFAS Mutual Fund",
+    "schemeType": "Open Ended Schemes",
+    "schemeCategory": "Equity Scheme - Flexi Cap Fund",
+    "isinGrowth": "INF879O01019",
+    "isinDivReinvestment": null,
+    "nav": "81.22700",
+    "date": "30-10-2026"
+  }
+]
