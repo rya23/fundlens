@@ -4,9 +4,9 @@ import { simulateSip, type NavPoint } from "./sip";
 describe("simulateSip", () => {
   it("buys units on each due date's exact NAV match and values the final NAV correctly", () => {
     const navSeries: NavPoint[] = [
-      { date: new Date("2024-01-01"), nav: 10 },
-      { date: new Date("2024-02-01"), nav: 10 },
-      { date: new Date("2024-03-01"), nav: 20 },
+      { date: "2024-01-01", nav: 10 },
+      { date: "2024-02-01", nav: 10 },
+      { date: "2024-03-01", nav: 20 },
     ];
 
     const result = simulateSip(navSeries, {
@@ -41,9 +41,9 @@ describe("simulateSip", () => {
 
   it("buys at the first NAV date on or after a due date when the due date itself is missing", () => {
     const navSeries: NavPoint[] = [
-      { date: new Date("2024-01-01"), nav: 10 },
-      { date: new Date("2024-01-03"), nav: 10.5 },
-      { date: new Date("2024-02-05"), nav: 11 },
+      { date: "2024-01-01", nav: 10 },
+      { date: "2024-01-03", nav: 10.5 },
+      { date: "2024-02-05", nav: 11 },
     ];
 
     const result = simulateSip(navSeries, {
@@ -67,9 +67,9 @@ describe("simulateSip", () => {
 
   it("clamps a due date past the last day of a shorter month (e.g. Jan 31 -> Feb 28)", () => {
     const navSeries: NavPoint[] = [
-      { date: new Date("2023-01-31"), nav: 10 },
-      { date: new Date("2023-02-28"), nav: 12 },
-      { date: new Date("2023-03-31"), nav: 13 },
+      { date: "2023-01-31", nav: 10 },
+      { date: "2023-02-28", nav: 12 },
+      { date: "2023-03-31", nav: 13 },
     ];
 
     const result = simulateSip(navSeries, {
@@ -90,8 +90,8 @@ describe("simulateSip", () => {
 
   it("skips an instalment whose due date falls after the last available NAV and keeps the rest", () => {
     const navSeries: NavPoint[] = [
-      { date: new Date("2024-01-01"), nav: 10 },
-      { date: new Date("2024-02-01"), nav: 10 },
+      { date: "2024-01-01", nav: 10 },
+      { date: "2024-02-01", nav: 10 },
     ];
 
     const result = simulateSip(navSeries, {
@@ -121,7 +121,7 @@ describe("simulateSip", () => {
   });
 
   it("returns invalid-date-range when startDate is after endDate", () => {
-    const navSeries: NavPoint[] = [{ date: new Date("2024-01-01"), nav: 10 }];
+    const navSeries: NavPoint[] = [{ date: "2024-01-01", nav: 10 }];
 
     const result = simulateSip(navSeries, {
       monthlyAmount: 1000,
@@ -133,7 +133,7 @@ describe("simulateSip", () => {
   });
 
   it("returns invalid-date-range when monthlyAmount is not positive", () => {
-    const navSeries: NavPoint[] = [{ date: new Date("2024-01-01"), nav: 10 }];
+    const navSeries: NavPoint[] = [{ date: "2024-01-01", nav: 10 }];
 
     const result = simulateSip(navSeries, {
       monthlyAmount: 0,
@@ -147,7 +147,7 @@ describe("simulateSip", () => {
   it("returns no-instalments when the only available NAV falls after endDate", () => {
     // The only NAV point is "on or after" every due date, but it is past
     // endDate, so no instalment is actually executable within the window.
-    const navSeries: NavPoint[] = [{ date: new Date("2024-06-01"), nav: 10 }];
+    const navSeries: NavPoint[] = [{ date: "2024-06-01", nav: 10 }];
 
     const result = simulateSip(navSeries, {
       monthlyAmount: 1000,
@@ -159,7 +159,7 @@ describe("simulateSip", () => {
   });
 
   it("returns no-instalments when every due date falls after the NAV series ends", () => {
-    const navSeries: NavPoint[] = [{ date: new Date("2024-01-01"), nav: 10 }];
+    const navSeries: NavPoint[] = [{ date: "2024-01-01", nav: 10 }];
 
     const result = simulateSip(navSeries, {
       monthlyAmount: 1000,
