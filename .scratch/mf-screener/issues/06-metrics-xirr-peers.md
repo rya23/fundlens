@@ -1,6 +1,6 @@
 # 06 Metrics: XIRR, SIP simulation, peer ranks
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: `docs/PLAN.md` (Metric defaults and math).
