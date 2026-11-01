@@ -1,6 +1,6 @@
 import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
 
 export default defineConfig({
   plugins: [react()],
@@ -16,5 +16,7 @@ export default defineConfig({
     environment: "node",
     globals: false,
     setupFiles: ["./vitest.setup.ts"],
+    // Agent git worktrees are full repo copies; never collect their tests.
+    exclude: [...configDefaults.exclude, ".claude/**"],
   },
 });
