@@ -1,6 +1,6 @@
 # 04 Metrics: series utilities and returns
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: `docs/PLAN.md` (Metric defaults and math).
