@@ -1,0 +1,762 @@
+{
+  "id": "121e5b3a-1625-43f5-8768-bc77375c9ff3",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.benchmark_nav": {
+      "name": "benchmark_nav",
+      "schema": "",
+      "columns": {
+        "benchmark_id": {
+          "name": "benchmark_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "date": {
+          "name": "date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "value": {
+          "name": "value",
+          "type": "numeric(18, 6)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "benchmark_nav_benchmark_id_benchmarks_id_fk": {
+          "name": "benchmark_nav_benchmark_id_benchmarks_id_fk",
+          "tableFrom": "benchmark_nav",
+          "tableTo": "benchmarks",
+          "columnsFrom": [
+            "benchmark_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "benchmark_nav_benchmark_id_date_pk": {
+          "name": "benchmark_nav_benchmark_id_date_pk",
+          "columns": [
+            "benchmark_id",
+            "date"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.benchmarks": {
+      "name": "benchmarks",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "kind": {
+          "name": "kind",
+          "type": "benchmark_kind",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.category_stats": {
+      "name": "category_stats",
+      "schema": "",
+      "columns": {
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "metric": {
+          "name": "metric",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "count": {
+          "name": "count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cut_q1": {
+          "name": "cut_q1",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cut_q2": {
+          "name": "cut_q2",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cut_q3": {
+          "name": "cut_q3",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "as_of": {
+          "name": "as_of",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {
+        "category_stats_category_metric_pk": {
+          "name": "category_stats_category_metric_pk",
+          "columns": [
+            "category",
+            "metric"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.ingest_state": {
+      "name": "ingest_state",
+      "schema": "",
+      "columns": {
+        "scheme_code": {
+          "name": "scheme_code",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "last_nav_date": {
+          "name": "last_nav_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_attempt_at": {
+          "name": "last_attempt_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_success_at": {
+          "name": "last_success_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "last_error": {
+          "name": "last_error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "ingest_state_scheme_code_schemes_scheme_code_fk": {
+          "name": "ingest_state_scheme_code_schemes_scheme_code_fk",
+          "tableFrom": "ingest_state",
+          "tableTo": "schemes",
+          "columnsFrom": [
+            "scheme_code"
+          ],
+          "columnsTo": [
+            "scheme_code"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.scheme_metrics": {
+      "name": "scheme_metrics",
+      "schema": "",
+      "columns": {
+        "scheme_code": {
+          "name": "scheme_code",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "as_of": {
+          "name": "as_of",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nav_last_date": {
+          "name": "nav_last_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cagr_1y": {
+          "name": "cagr_1y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cagr_3y": {
+          "name": "cagr_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cagr_5y": {
+          "name": "cagr_5y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cagr_10y": {
+          "name": "cagr_10y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "rolling_3y_cagr_median": {
+          "name": "rolling_3y_cagr_median",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pct_rolling_3y_beat_benchmark": {
+          "name": "pct_rolling_3y_beat_benchmark",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sharpe_3y": {
+          "name": "sharpe_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sortino_3y": {
+          "name": "sortino_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "alpha_3y": {
+          "name": "alpha_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "beta_3y": {
+          "name": "beta_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "r_squared_3y": {
+          "name": "r_squared_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "std_dev_3y": {
+          "name": "std_dev_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tracking_error_3y": {
+          "name": "tracking_error_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "info_ratio_3y": {
+          "name": "info_ratio_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "max_drawdown_5y": {
+          "name": "max_drawdown_5y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "up_capture_3y": {
+          "name": "up_capture_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "down_capture_3y": {
+          "name": "down_capture_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sip_xirr_3y": {
+          "name": "sip_xirr_3y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sip_xirr_5y": {
+          "name": "sip_xirr_5y",
+          "type": "numeric(10, 4)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "scheme_metrics_as_of_idx": {
+          "name": "scheme_metrics_as_of_idx",
+          "columns": [
+            {
+              "expression": "as_of",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_cagr_1y_idx": {
+          "name": "scheme_metrics_cagr_1y_idx",
+          "columns": [
+            {
+              "expression": "cagr_1y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_cagr_3y_idx": {
+          "name": "scheme_metrics_cagr_3y_idx",
+          "columns": [
+            {
+              "expression": "cagr_3y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_cagr_5y_idx": {
+          "name": "scheme_metrics_cagr_5y_idx",
+          "columns": [
+            {
+              "expression": "cagr_5y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_rolling_3y_cagr_median_idx": {
+          "name": "scheme_metrics_rolling_3y_cagr_median_idx",
+          "columns": [
+            {
+              "expression": "rolling_3y_cagr_median",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_sharpe_3y_idx": {
+          "name": "scheme_metrics_sharpe_3y_idx",
+          "columns": [
+            {
+              "expression": "sharpe_3y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_alpha_3y_idx": {
+          "name": "scheme_metrics_alpha_3y_idx",
+          "columns": [
+            {
+              "expression": "alpha_3y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_beta_3y_idx": {
+          "name": "scheme_metrics_beta_3y_idx",
+          "columns": [
+            {
+              "expression": "beta_3y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "scheme_metrics_max_drawdown_5y_idx": {
+          "name": "scheme_metrics_max_drawdown_5y_idx",
+          "columns": [
+            {
+              "expression": "max_drawdown_5y",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "scheme_metrics_scheme_code_schemes_scheme_code_fk": {
+          "name": "scheme_metrics_scheme_code_schemes_scheme_code_fk",
+          "tableFrom": "scheme_metrics",
+          "tableTo": "schemes",
+          "columnsFrom": [
+            "scheme_code"
+          ],
+          "columnsTo": [
+            "scheme_code"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.schemes": {
+      "name": "schemes",
+      "schema": "",
+      "columns": {
+        "scheme_code": {
+          "name": "scheme_code",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "isin_growth_or_payout": {
+          "name": "isin_growth_or_payout",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "isin_reinvestment": {
+          "name": "isin_reinvestment",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "name": {
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amc": {
+          "name": "amc",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "category": {
+          "name": "category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "sub_category": {
+          "name": "sub_category",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "plan": {
+          "name": "plan",
+          "type": "plan_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "option": {
+          "name": "option",
+          "type": "option_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "inception_date": {
+          "name": "inception_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "official_benchmark_name": {
+          "name": "official_benchmark_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ter_pct": {
+          "name": "ter_pct",
+          "type": "numeric(6, 3)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "aum_cr": {
+          "name": "aum_cr",
+          "type": "numeric(14, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "riskometer": {
+          "name": "riskometer",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "exit_load": {
+          "name": "exit_load",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "managers": {
+          "name": "managers",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "metadata_updated_at": {
+          "name": "metadata_updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "schemes_category_idx": {
+          "name": "schemes_category_idx",
+          "columns": [
+            {
+              "expression": "category",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "schemes_sub_category_idx": {
+          "name": "schemes_sub_category_idx",
+          "columns": [
+            {
+              "expression": "sub_category",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "schemes_amc_idx": {
+          "name": "schemes_amc_idx",
+          "columns": [
+            {
+              "expression": "amc",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "schemes_plan_option_idx": {
+          "name": "schemes_plan_option_idx",
+          "columns": [
+            {
+              "expression": "plan",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "option",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.benchmark_kind": {
+      "name": "benchmark_kind",
+      "schema": "public",
+      "values": [
+        "tri",
+        "index_fund_proxy"
+      ]
+    },
+    "public.option_type": {
+      "name": "option_type",
+      "schema": "public",
+      "values": [
+        "growth",
+        "idcw"
+      ]
+    },
+    "public.plan_type": {
+      "name": "plan_type",
+      "schema": "public",
+      "values": [
+        "direct",
+        "regular"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}
