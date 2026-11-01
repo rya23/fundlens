@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   computeQuartileCutPoints,
   formatPeerRankLabel,
+  quartileFromCutPoints,
   rankPeer,
 } from "./peers";
 
@@ -122,5 +123,29 @@ describe("formatPeerRankLabel", () => {
     );
 
     expect(label).toBe(`Q2 · ${ordinal} pct in Large Cap`);
+  });
+});
+
+describe("quartileFromCutPoints", () => {
+  const cuts = { q1: 20, q2: 30, q3: 40 };
+
+  it("inverts for higher-is-better so the top values are quartile 1", () => {
+    expect(quartileFromCutPoints(45, cuts, "higher-is-better")).toBe(1);
+    expect(quartileFromCutPoints(40, cuts, "higher-is-better")).toBe(2);
+    expect(quartileFromCutPoints(25, cuts, "higher-is-better")).toBe(3);
+    expect(quartileFromCutPoints(20, cuts, "higher-is-better")).toBe(4);
+  });
+
+  it("keeps numeric order for lower-is-better", () => {
+    expect(quartileFromCutPoints(10, cuts, "lower-is-better")).toBe(1);
+    expect(quartileFromCutPoints(45, cuts, "lower-is-better")).toBe(4);
+  });
+
+  it("agrees with rankPeer on the same peer set", () => {
+    const peers = [10, 20, 30, 40, 50];
+    const peerCuts = computeQuartileCutPoints(peers)!;
+    for (const value of peers) {
+      expect(quartileFromCutPoints(value, peerCuts, "higher-is-better")).toBe(rankPeer(value, peers, "higher-is-better")!.quartile);
+    }
   });
 });
