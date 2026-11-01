@@ -1,6 +1,6 @@
 # 08 Benchmark TRI ingestion
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02, 07
 
 Spec: `docs/PLAN.md` (Benchmarks).

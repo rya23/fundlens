@@ -22,7 +22,7 @@ As of 2026-11-01. These items were deliberately cut from v1 so it ships on free 
 - [ ] **Historical risk-free rate**: switch from the fixed configurable 6.5% to a 91-day T-bill series.
 - [ ] **mfapi.in fallback**: mfapi has no auth and no keyed tier (checked 2026-11-01, https://www.mfapi.in/). If it throttles or goes down, add AMFI's historical NAV report as a second source: `portal.amfiindia.com/DownloadNAVHistoryReport_Po.aspx?frmdt=DD-Mon-YYYY&todt=DD-Mon-YYYY`. 3-month ranges worked, a 6-month range was rejected, so fetch in roughly 90-day chunks.
 
-- [ ] **Benchmark TRI history**: v1 uses NAV of a low-cost index fund per index as the benchmark (understates the index by roughly the fund's TER). Add a real TRI source (niftyindices.com needs browser-like requests; decide whether that is acceptable, or find an official/licensed feed) behind the existing `BenchmarkSource` interface.
+- [ ] **Benchmark TRI history**: v1 uses NAV of a low-cost index fund per index as the benchmark (understates the index by roughly the fund's TER). Add a real TRI source (niftyindices.com needs browser-like requests; decide whether that is acceptable, or find an official/licensed feed) behind the existing `BenchmarkSource` interface. Note: some proxies are young (Nifty 500 proxy had ~458 daily points on 2026-11-01), so 3Y/5Y benchmark-relative metrics for Flexi/Multi/ELSS/Focused are n/a until TRI lands.
 
 ## Infra / scale triggers
 

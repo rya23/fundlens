@@ -1,6 +1,6 @@
 # 09 Backfill job
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02, 03, 07
 
 Spec: `docs/PLAN.md` (Architecture: backfill).
