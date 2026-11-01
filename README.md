@@ -63,3 +63,26 @@ logic; a file that needs the DOM opts in with a
 exists, is excluded from `npm test`.
 
 Never use the em dash character in code, docs, or commit messages - use "-".
+
+## Jobs
+
+All jobs read `DATABASE_URL` / `NAV_STORE` (and `R2_*` when `NAV_STORE=r2`)
+from the environment, exactly like the app. Apply migrations first with
+`npm run db:migrate`.
+
+### Backfill (`npm run backfill`)
+
+One-off load of the full NAV history of every AMFI scheme (all plans and
+options). Discovers schemes from AMFI `NAVAll.txt` (mfapi `/mf/latest` as the
+fallback), merges fund metadata, then fetches each scheme's history from
+mfapi.in into the NavStore. Idempotent and resumable: progress is kept in
+`ingest_state`, so after an interruption (Ctrl-C included) just run it again
+and only missing or stale schemes are fetched. A failing scheme is recorded in
+`ingest_state.last_error` and retried on the next run; it never aborts the
+run.
+
+```bash
+npm run backfill -- --limit 50            # at most 50 schemes this run
+npm run backfill -- --codes 122639,119528 # only these scheme codes
+npm run backfill -- --concurrency 8       # default 4
+```
