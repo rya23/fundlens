@@ -86,3 +86,11 @@ npm run backfill -- --limit 50            # at most 50 schemes this run
 npm run backfill -- --codes 122639,119528 # only these scheme codes
 npm run backfill -- --concurrency 8       # default 4
 ```
+
+### Benchmarks (`npm run benchmarks`)
+
+Refreshes the benchmark series used for alpha/beta/etc. Incremental and safe to
+re-run. The benchmark history is currently the NAV of a low-cost index fund per
+index (stored as `index_fund_proxy`); a true TRI source is pending the owner's
+decision. See `docs/benchmarks.md` for the mapping and the caveats (a proxy
+understates the index by roughly the fund's TER).

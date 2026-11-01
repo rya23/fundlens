@@ -13,7 +13,8 @@
     "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx src/db/migrate.ts",
     "smoke:sources": "tsx scripts/smoke-sources.ts",
-    "backfill": "tsx scripts/backfill.ts"
+    "backfill": "tsx scripts/backfill.ts",
+    "benchmarks": "tsx scripts/benchmarks.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1161.0",

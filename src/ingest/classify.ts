@@ -247,3 +247,17 @@ export function getBenchmarkMapping(category: NormalizedCategory): BenchmarkMapp
   }
   return { triName: null, fallbackSchemeCode: null, rationale: OTHER_RATIONALE };
 }
+
+export interface SubCategoryBenchmark extends BenchmarkMapping {
+  subCategory: string;
+}
+
+/**
+ * Every equity sub-category that has a benchmark index, in map order.
+ * Lets jobs enumerate the indices to ingest without re-deriving the map.
+ */
+export function listBenchmarkMappings(): SubCategoryBenchmark[] {
+  return Object.entries(EQUITY_BENCHMARKS)
+    .filter(([, mapping]) => mapping.triName !== null)
+    .map(([subCategory, mapping]) => ({ subCategory, ...mapping }));
+}
