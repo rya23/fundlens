@@ -39,34 +39,64 @@ real screens. Backfill is resumable; use `--codes 122639,119528` for specific sc
 or `--concurrency 4` to control parallel downloads. Run `npm run nightly` to refresh
 latest NAVs, metadata, benchmarks, metrics, and category statistics.
 
-## Deploy with Supabase, R2, and Vercel
+## Deploy with Supabase and Vercel
 
-1. Create a Supabase Postgres database. Set `DATABASE_URL` to its connection string
-   (use the transaction pooler for serverless hosting). The client disables
-   prepared statements for pooler compatibility. Apply the additive migrations
-   with `npm run db:migrate` before running ingestion or the app.
-2. Create a private Cloudflare R2 bucket and an S3 API token restricted to that
-   bucket's object read/write operations. Configure `NAV_STORE=r2`, `R2_ACCOUNT_ID`,
-   `R2_ACCESS_KEY_ID`, `R2_SECRET_ACCESS_KEY`, and `R2_BUCKET`. NAV objects are
-   gzipped JSON at `nav/{schemeCode}.json.gz`; never expose bucket credentials
-   through `NEXT_PUBLIC_*` variables.
-3. Set these variables on Vercel for the Next.js project. Add `DATABASE_URL` and
-   the four `R2_*` values as GitHub repository Actions secrets. `NAV_STORE=r2` is
-   set in the workflows. Optional repository variable `RISK_FREE_RATE` defaults
-   to `0.065` (6.5%); configure the same value in Vercel to keep metrics consistent.
-4. Run the manual **Backfill fund NAV history** workflow for initial history;
-   optional `limit` and `codes` inputs allow bounded/resumed runs. The
-   **Nightly fund data** workflow runs daily at 18:30 UTC (00:00 IST), or manually.
-   Check workflow logs for failed schemes and retry them. Workflows have a
-   six-hour timeout. GitHub requires scheduled workflows on the default branch;
-   local branches alone do not activate the schedule.
-5. Deploy the repository as a Next.js project on Vercel. Build with
-   `npm run build`; keep all credentials server-side. Vercel Hobby is suitable
-   for personal, non-commercial use. Verify data freshness in the screener after
-   the initial ingestion finishes.
+1. In Supabase, create a private Storage bucket named `fund-nav`. Copy the
+   project URL, a server secret key (`sb_secret_...`), and the Postgres connection
+   string. Use the transaction pooler for Vercel; the database client disables
+   prepared statements. This app uses direct SQL, so the Supabase Data API can
+   stay disabled. No Supabase Auth, Realtime, or Edge Functions are needed.
+2. Add these server-only environment variables in Vercel:
 
-The repository has no remote configured. Local work does not publish the app,
-configure cloud accounts, or activate GitHub Actions.
+   ```dotenv
+   DATABASE_URL=<Supabase Postgres connection string>
+   NAV_STORE=supabase
+   SUPABASE_URL=https://<project-ref>.supabase.co
+   SUPABASE_SECRET_KEY=<server secret key>
+   SUPABASE_STORAGE_BUCKET=fund-nav
+   RISK_FREE_RATE=0.065
+   ```
+
+   Legacy projects may use `SUPABASE_SERVICE_ROLE_KEY` instead of
+   `SUPABASE_SECRET_KEY`. Never put either key in a `NEXT_PUBLIC_*` variable.
+   The app uses the official Supabase client to access private Storage;
+   metadata and metrics continue to use Drizzle/Postgres.
+3. In GitHub repository Settings > Secrets and variables > Actions, add repository
+   secrets `DATABASE_URL`, `SUPABASE_URL`, and `SUPABASE_SECRET_KEY` (or the legacy
+   key above). Optional repository variables: `SUPABASE_STORAGE_BUCKET` defaults
+   to `fund-nav`, and `RISK_FREE_RATE` defaults to `0.065`. Both workflows set
+   `NAV_STORE=supabase`. No R2 credentials are needed.
+4. Run the manual **Backfill fund NAV history** workflow in Actions. Start with
+   `limit=50` to populate a small real-data universe, then rerun without the limit
+   for complete history. The workflow applies migrations, loads NAV files,
+   refreshes benchmarks, and precomputes metrics. It is resumable; a limit counts
+   fetched histories, so other discovered schemes can initially show n/a. Do not
+   run `seed:dev` against the cloud database.
+5. Import `rya23/fundlens` into Vercel as a Next.js project on branch `main` and
+   deploy. Build command: `npm run build`; if the build environment restricts
+   Turbopack worker sockets, use `npm run build -- --webpack`. Verify the initial
+   backfill finishes before expecting populated fund charts.
+
+The **Nightly fund data** workflow refreshes data at 18:30 UTC (00:00 IST), or
+manually. Workflows have a six-hour timeout, share a concurrency group to avoid
+conflicting NAV writes, and scheduled runs require the workflow on the default
+branch. Vercel Hobby is intended for personal, non-commercial use. Account
+credentials and storage/egress quotas remain the owner's responsibility.
+
+For local cloud jobs, export the same variables before running the commands.
+If credentials are already in a private `.env`, Node 22 can load them without
+printing them:
+
+```bash
+node --env-file=.env --import tsx src/db/migrate.ts
+node --env-file=.env --import tsx scripts/backfill.ts --limit 50
+node --env-file=.env --import tsx scripts/benchmarks.ts
+node --env-file=.env --import tsx scripts/precompute.ts
+```
+
+Cloudflare R2 remains an optional alternative: set `NAV_STORE=r2` and the four
+`R2_*` variables documented in `.env.example`. The checked-in GitHub workflows
+now target Supabase Storage; customize their environment if using R2.
 
 ## Commands
 

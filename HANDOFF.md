@@ -1,7 +1,7 @@
 # Handoff: MF Screener v1 (2026-11-01)
 
-Implementation is complete on local branch `mf-screener`; nothing has been pushed
-or deployed. Tickets 01-16 are resolved. The owner explicitly waived new tests
+Implementation is complete on local branch `mf-screener`; the initial v1 has been pushed to `rya23/fundlens` on `main`. No cloud deployment
+has been verified. Tickets 01-16 are resolved. The owner explicitly waived new tests
 and E2E to save tokens; ticket 16 is complete with that validation exception.
 
 ## Available now
@@ -67,3 +67,14 @@ purchase dates without available NAV and displays the actual first purchase.
 - No whole-tree formatter/lint fixes, no pushes, no AI co-author trailers.
 - Existing historical agent worktrees remain under `.claude/worktrees/`.
   Cleanup was deferred to avoid deleting unrelated local work.
+
+## Supabase-only cloud deployment
+
+Added SupabaseNavStore using the official SDK and existing gzipped NAV format.
+Set NAV_STORE=supabase, SUPABASE_URL, SUPABASE_SECRET_KEY (legacy
+SUPABASE_SERVICE_ROLE_KEY also accepted), and SUPABASE_STORAGE_BUCKET=fund-nav.
+R2 and filesystem adapters remain available. Both GitHub workflows now target
+Supabase Storage and serialize writes through a shared concurrency group.
+Migrations no longer log the database connection string. No new tests or E2E
+were added, as requested. Credentials were not read from .env and live migrations,
+backfill, and deployment have not been run. See README.md for the remaining setup.

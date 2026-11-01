@@ -30,7 +30,11 @@ const envSchema = z.object({
   NAV_STORE: z
     .string()
     .min(1, "NAV_STORE is required")
-    .regex(/^(r2|fs:.+)$/, 'NAV_STORE must be "r2" or "fs:<dir>"'),
+    .regex(/^(r2|supabase|fs:.+)$/, 'NAV_STORE must be "supabase", "r2", or "fs:<dir>"'),
+  SUPABASE_URL: z.url().regex(/^https?:\/\//, "SUPABASE_URL must use HTTP or HTTPS").optional(),
+  SUPABASE_SECRET_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  SUPABASE_SERVICE_ROLE_KEY: z.preprocess((value) => value === "" ? undefined : value, z.string().min(1).optional()),
+  SUPABASE_STORAGE_BUCKET: z.string().regex(/^[A-Za-z0-9][A-Za-z0-9_-]*$/).optional(),
   R2_ACCOUNT_ID: z.string().min(1).optional(),
   R2_ACCESS_KEY_ID: z.string().min(1).optional(),
   R2_SECRET_ACCESS_KEY: z.string().min(1).optional(),
@@ -62,6 +66,15 @@ export function parseEnv(raw: Record<string, string | undefined>): Env {
   }
 
   const env = result.data;
+  if (env.NAV_STORE === "supabase") {
+    if (!env.SUPABASE_URL || !(env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY)) {
+      throw new EnvValidationError("NAV_STORE=supabase requires SUPABASE_URL and SUPABASE_SECRET_KEY (or legacy SUPABASE_SERVICE_ROLE_KEY)");
+    }
+    const url = new URL(env.SUPABASE_URL);
+    if (url.protocol !== "https:" && !["localhost", "127.0.0.1", "[::1]"].includes(url.hostname)) {
+      throw new EnvValidationError("SUPABASE_URL must use HTTPS except for local development");
+    }
+  }
   if (env.NAV_STORE === "r2") {
     const missing = R2_KEYS.filter((key) => !env[key]);
     if (missing.length > 0) {

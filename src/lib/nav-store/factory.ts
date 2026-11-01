@@ -2,13 +2,15 @@ import { S3Client } from "@aws-sdk/client-s3";
 import type { Env } from "../env";
 import { FsNavStore } from "./fs-store";
 import { R2NavStore } from "./r2-store";
+import { SupabaseNavStore } from "./supabase-store";
 import { NavStoreError, type NavStore } from "./types";
 
 const FS_PREFIX = "fs:";
 
 /**
  * Builds the `NavStore` configured by env: `NAV_STORE=fs:<dir>` for local
- * dev/tests, or `NAV_STORE=r2` for Cloudflare R2. `src/lib/env.ts` already
+ * dev/tests, `NAV_STORE=supabase` for a private Supabase bucket, or
+ * `NAV_STORE=r2` for Cloudflare R2. `src/lib/env.ts` already
  * validates the shape of `NAV_STORE` and requires the `R2_*` vars when
  * `NAV_STORE=r2`; the checks here are a defensive second line so this
  * function is also safe to call with a hand-built `Env`.
@@ -16,6 +18,14 @@ const FS_PREFIX = "fs:";
 export function createNavStoreFromEnv(env: Env): NavStore {
   if (env.NAV_STORE.startsWith(FS_PREFIX)) {
     return new FsNavStore(env.NAV_STORE.slice(FS_PREFIX.length));
+  }
+
+  if (env.NAV_STORE === "supabase") {
+    const key = env.SUPABASE_SECRET_KEY || env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!env.SUPABASE_URL || !key) {
+      throw new NavStoreError("Supabase NAV storage requires SUPABASE_URL and a server secret key");
+    }
+    return new SupabaseNavStore(env.SUPABASE_URL, key, env.SUPABASE_STORAGE_BUCKET);
   }
 
   if (env.NAV_STORE === "r2") {

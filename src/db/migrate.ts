@@ -24,7 +24,7 @@ async function main(): Promise<void> {
   }
 
   await closeDb(db);
-  console.log(`Migrations applied to ${env.DATABASE_URL}.`);
+  console.log("Database migrations applied.");
 }
 
 main().catch((error: unknown) => {

@@ -2,6 +2,15 @@
 
 Settled with the owner on 2026-11-01. Implementation agents: read this whole file first. Deferred work lives in `docs/V2_BACKLOG.md`; add to it rather than building deferred items.
 
+## Cloud deployment update
+
+The owner subsequently chose Vercel + Supabase without Cloudflare. The primary
+cloud NAV store is now a private Supabase Storage bucket (`NAV_STORE=supabase`),
+using the same gzipped per-scheme format. Supabase Postgres, local PGlite/FS,
+metrics, and GitHub Actions architecture are unchanged. R2 remains an optional
+adapter; its historical limits below do not describe Supabase Storage quotas.
+Current deployment variables and setup are documented in README.md.
+
 ## Product
 
 - Indian mutual funds only (AMFI-registered schemes). Tickertape-style screener with **every feature free**. No billing, no tiers.

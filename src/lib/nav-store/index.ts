@@ -1,6 +1,7 @@
 export { mergeNavPoints, encodeNavSeries, decodeNavSeries } from "./codec";
 export { createNavStoreFromEnv } from "./factory";
 export { FsNavStore } from "./fs-store";
+export { SupabaseNavStore } from "./supabase-store";
 export { R2NavStore, type R2NavStoreOptions } from "./r2-store";
 export {
   NAV_SERIES_VERSION,
