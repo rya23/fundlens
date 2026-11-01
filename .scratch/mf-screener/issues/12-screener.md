@@ -12,3 +12,7 @@ Spec: `docs/PLAN.md` (v1 surfaces: Screener), `.claude/skills/`.
 
 ## Acceptance
 - Unit tests for URL state (de)serialisation and filter logic; component test for the table; manual check in the browser against the design skills.
+
+## Comments
+
+- 2026-11-01: partial WIP on branch `worktree-agent-abcf5286fc0b64882` (commit 0893cd8): data layer, URL state, presets, seed:dev, multi-select done; table UI, filter panel, page wiring, browser check not done. Merge mf-screener into it and continue. Notes: `.scratch/mf-screener/notes/12-screener.md`.
