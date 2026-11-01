@@ -1,6 +1,6 @@
 # 07 Data source clients and scheme classification
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: `docs/PLAN.md` (Data sources, Benchmarks), `stonk.py` (~line 280-360 for the TigZig metadata loader; reference only).
