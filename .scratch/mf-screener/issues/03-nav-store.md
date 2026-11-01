@@ -1,6 +1,6 @@
 # 03 NavStore (R2 + filesystem)
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: `../spec.md` (NavStore), `docs/PLAN.md` (Architecture: R2 layout).
