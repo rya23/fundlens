@@ -1,6 +1,6 @@
 # 02 Drizzle schema, migrations and DB client
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 01
 
 Spec: `../spec.md` (DB dual driver), `docs/PLAN.md` (Architecture, surfaces).
