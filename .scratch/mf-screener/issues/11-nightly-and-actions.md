@@ -1,6 +1,6 @@
 # 11 Nightly job and GitHub Actions workflows
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 09, 10
 
 Spec: `docs/PLAN.md` (Architecture: jobs).
@@ -11,3 +11,7 @@ Spec: `docs/PLAN.md` (Architecture: jobs).
 
 ## Acceptance
 - Test the nightly pipeline end to end with mocked sources (PGlite + FsNavStore), including the NAVAll-failure fallback. `actionlint` clean if available.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.

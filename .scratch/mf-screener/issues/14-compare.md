@@ -1,6 +1,6 @@
 # 14 Compare page
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 13
 
 Spec: `docs/PLAN.md` (v1 surfaces: Compare), `.claude/skills/`.
@@ -10,3 +10,7 @@ Spec: `docs/PLAN.md` (v1 surfaces: Compare), `.claude/skills/`.
 
 ## Acceptance
 - Tests for codes parsing/validation; browser check.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.

@@ -1,6 +1,6 @@
 # 10 Precompute screener metrics and category stats
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02, 03, 05, 06, 08
 
 Spec: `docs/PLAN.md` (surfaces: screener columns; math; peer ranks).
@@ -11,3 +11,7 @@ Spec: `docs/PLAN.md` (surfaces: screener columns; math; peer ranks).
 
 ## Acceptance
 - Integration test on PGlite + FsNavStore with a few synthetic schemes and a benchmark; spot-check values against the metrics library.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.

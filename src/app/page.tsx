@@ -1,11 +1,12 @@
-export default function ScreenerPage() {
-  return (
-    <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6">
-      <h1 className="text-2xl font-semibold tracking-tight">Screener</h1>
-      <p className="mt-2 max-w-prose text-sm text-muted-foreground">
-        The full fund table - with filters, presets, and quartile-coded
-        metrics - lands in a later ticket.
-      </p>
-    </div>
-  );
+import { ScreenerView } from "@/components/screener/screener-view";
+import { getDb } from "@/db/client";
+import { loadScreenerData } from "@/lib/screener/data";
+import { parseScreenerState, serializeScreenerState } from "@/lib/screener/state";
+
+export const metadata = { title: "Fund screener | MF Screener" };
+
+export default async function ScreenerPage({ searchParams }: PageProps<"/">) {
+  const state = parseScreenerState(await searchParams);
+  const data = await loadScreenerData(getDb(), { plans: state.plans, options: state.options });
+  return <ScreenerView key={serializeScreenerState(state).toString()} data={data} initialState={state} />;
 }

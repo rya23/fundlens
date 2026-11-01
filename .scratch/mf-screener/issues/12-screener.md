@@ -1,6 +1,6 @@
 # 12 Screener page and API
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 02, 06
 
 Spec: `docs/PLAN.md` (v1 surfaces: Screener), `.claude/skills/`.
@@ -16,3 +16,7 @@ Spec: `docs/PLAN.md` (v1 surfaces: Screener), `.claude/skills/`.
 ## Comments
 
 - 2026-11-01: partial WIP on branch `worktree-agent-abcf5286fc0b64882` (commit 0893cd8): data layer, URL state, presets, seed:dev, multi-select done; table UI, filter panel, page wiring, browser check not done. Merge mf-screener into it and continue. Notes: `.scratch/mf-screener/notes/12-screener.md`.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.

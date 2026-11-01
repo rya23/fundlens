@@ -1,0 +1,40 @@
+name: Backfill fund NAV history
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: Optional maximum number of schemes to fetch
+        required: false
+        type: string
+      codes:
+        description: Optional comma-separated scheme codes
+        required: false
+        type: string
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NAV_STORE: r2
+      R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+      R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+      R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+      R2_BUCKET: ${{ secrets.R2_BUCKET }}
+      RISK_FREE_RATE: ${{ vars.RISK_FREE_RATE || '0.065' }}
+      ARGS: ${{ inputs.limit && format('--limit {0}', inputs.limit) || '' }}
+      CODES: ${{ inputs.codes && format('--codes {0}', inputs.codes) || '' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci --registry=https://registry.npmjs.org/
+      - run: npm run db:migrate
+      - run: npm run backfill -- $ARGS $CODES
+      - run: npm run benchmarks
+      - run: npm run precompute
+

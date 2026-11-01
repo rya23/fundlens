@@ -1,6 +1,6 @@
 # 13 Fund detail page
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 03, 05, 06, 08, 12
 
 Spec: `docs/PLAN.md` (v1 surfaces: Fund detail), `.claude/skills/`.
@@ -11,3 +11,7 @@ Spec: `docs/PLAN.md` (v1 surfaces: Fund detail), `.claude/skills/`.
 
 ## Acceptance
 - Tests for the data assembly function; browser check in light and dark.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.

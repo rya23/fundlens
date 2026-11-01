@@ -33,8 +33,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           enableSystem
           disableTransitionOnChange
         >
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:z-50 focus:rounded focus:bg-background focus:p-3 focus:text-foreground">Skip to content</a>
           <SiteHeader />
-          <main className="flex-1">{children}</main>
+          <main id="main-content" tabIndex={-1} className="min-w-0 flex-1 scroll-mt-16">{children}</main>
         </ThemeProvider>
       </body>
     </html>

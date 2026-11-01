@@ -1,6 +1,6 @@
 # 16 Polish and E2E UI check
 
-Status: ready-for-agent
+Status: resolved
 Blocked by: 11, 14, 15
 
 Spec: `docs/PLAN.md`, `.claude/skills/` (web-interface-guidelines checklist).
@@ -12,3 +12,7 @@ Spec: `docs/PLAN.md`, `.claude/skills/` (web-interface-guidelines checklist).
 
 ## Acceptance
 - E2E suite passes; all checks green; screenshots reviewed.
+
+## Completion (2026-11-01)
+
+Implemented on `mf-screener`. New automated tests and E2E were explicitly waived by the owner to save tokens. See HANDOFF.md for validation and runtime limitations.
