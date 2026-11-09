@@ -1,10 +1,11 @@
 /**
  * Client for mfapi.in, used for scheme discovery and full-history backfill
- * (see `docs/PLAN.md` "Data sources"). No auth, no documented rate limit,
- * so this client is deliberately polite: it throttles between requests and
- * retries transient failures with backoff via `../http`.
+ * (see `docs/PLAN.md` "Data sources"). No auth and no documented rate limit,
+ * but it rejects bursts with HTTP 429, so this client paces every request
+ * through one shared limiter and retries transient failures with backoff via
+ * `../http`.
  */
-import { fetchJson, type FetchRetryOptions } from "../http";
+import { fetchJson, RateLimiter, type FetchRetryOptions } from "../http";
 
 export const MFAPI_BASE_URL = "https://api.mfapi.in/mf";
 
@@ -54,12 +55,19 @@ export interface MfApiLatestNav {
 
 export interface MfApiClientOptions extends FetchRetryOptions {
   baseUrl?: string;
+  /**
+   * Aggregate request rate across all concurrent callers of this client.
+   * mfapi.in (nginx) starts answering 429 above ~10 req/s (measured
+   * 2026-11-10); the default stays at half that to be a polite user of a free
+   * service. A full ~8.4k-scheme backfill then takes about half an hour.
+   */
+  requestsPerSecond?: number;
 }
 
 const DEFAULT_OPTIONS: Required<Pick<FetchRetryOptions, "throttleMs" | "retries" | "timeoutMs" | "backoffMs">> = {
-  // mfapi.in has no documented rate limit, but it's a free community service;
-  // space requests out by default rather than hammering it during a bulk backfill.
-  throttleMs: 250,
+  // Pacing comes from the shared RateLimiter (see requestsPerSecond), which
+  // holds across concurrent workers; a per-request sleep does not.
+  throttleMs: 0,
   retries: 3,
   timeoutMs: 15_000,
   backoffMs: 500,
@@ -70,9 +78,9 @@ export class MfApiClient {
   private readonly fetchOptions: FetchRetryOptions;
 
   constructor(options: MfApiClientOptions = {}) {
-    const { baseUrl = MFAPI_BASE_URL, ...fetchOptions } = options;
+    const { baseUrl = MFAPI_BASE_URL, requestsPerSecond = 5, ...fetchOptions } = options;
     this.baseUrl = baseUrl;
-    this.fetchOptions = { ...DEFAULT_OPTIONS, ...fetchOptions };
+    this.fetchOptions = { ...DEFAULT_OPTIONS, rateLimiter: new RateLimiter(requestsPerSecond), ...fetchOptions };
   }
 
   /** `GET /mf` - the full scheme list, optionally paginated. */

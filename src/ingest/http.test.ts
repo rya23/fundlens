@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { fetchJson, fetchText, RetryableHttpError } from "./http";
+import { fetchJson, fetchText, RateLimiter, RetryableHttpError } from "./http";
 
 function jsonResponse(body: unknown, init: { status?: number } = {}): Response {
   return new Response(JSON.stringify(body), {
@@ -98,5 +98,24 @@ describe("fetchText", () => {
     const result = await fetchText("https://example.test/text", { fetchImpl, retries: 0, throttleMs: 0 });
 
     expect(result).toBe("plain text body");
+  });
+});
+
+describe("RateLimiter", () => {
+  it("spaces concurrent acquisitions by the configured interval", async () => {
+    const limiter = new RateLimiter(50);
+    const started: number[] = [];
+    const t0 = Date.now();
+    await Promise.all([0, 1, 2, 3].map(async () => {
+      await limiter.acquire();
+      started.push(Date.now() - t0);
+    }));
+    started.sort((a, b) => a - b);
+    expect(started[0]).toBeLessThan(15);
+    expect(started[3]).toBeGreaterThanOrEqual(55);
+  });
+
+  it("rejects a non-positive rate", () => {
+    expect(() => new RateLimiter(0)).toThrow();
   });
 });

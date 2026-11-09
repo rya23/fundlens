@@ -38,7 +38,10 @@ jobs:
           cache: npm
       - run: npm ci --registry=https://registry.npmjs.org/
       - run: npm run db:migrate
-      - run: npm run backfill -- $ARGS $CODES
+      # GitHub kills jobs at 6h. Stop starting new schemes after 4h so the
+      # benchmark and precompute steps always run; re-dispatch (or let the
+      # nightly job) finish whatever is left - progress is persisted.
+      - run: npm run backfill -- --max-minutes 240 --concurrency 12 $ARGS $CODES
       - run: npm run benchmarks
       - run: npm run precompute
 

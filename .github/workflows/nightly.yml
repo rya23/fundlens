@@ -29,4 +29,6 @@ jobs:
           cache: npm
       - run: npm ci --registry=https://registry.npmjs.org/
       - run: npm run db:migrate
-      - run: npm run nightly
+      # Bound the per-scheme NAV phase so benchmarks and precompute fit in the
+      # job limit; schemes without history are filled in over later runs.
+      - run: npm run nightly -- --max-minutes 240

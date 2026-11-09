@@ -20,6 +20,7 @@ import type { Database } from "@/db/client";
 import { ingestState } from "@/db/schema";
 import type { NavStore } from "@/lib/nav-store";
 import { toNavPoints } from "./nav-points";
+import { forEachConcurrent } from "./pool";
 import { syncSchemes, type FetchUniverseDeps, type UniverseEntry } from "./schemes";
 import type { MfApiClient } from "./sources/mfapi";
 import type { MetadataSource } from "./sources/metadata";
@@ -29,7 +30,7 @@ export interface BackfillDeps extends Omit<FetchUniverseDeps, "mfapi"> {
   store: NavStore;
   mfapi: Pick<MfApiClient, "getSchemeHistory" | "getLatestNavs">;
   metadata: MetadataSource;
-  /** Parallel scheme fetches. Default 4. */
+  /** Parallel scheme fetches. Default 8. */
   concurrency?: number;
   /** Cap on schemes fetched this run (after skipping up-to-date ones). */
   limit?: number;
@@ -37,6 +38,8 @@ export interface BackfillDeps extends Omit<FetchUniverseDeps, "mfapi"> {
   codes?: readonly number[];
   /** Stop picking up new schemes once aborted; in-flight ones finish. */
   signal?: AbortSignal;
+  /** Epoch ms after which no new schemes are started (CI time budget). */
+  deadline?: number;
   log?: (message: string) => void;
   now?: () => Date;
 }
@@ -48,10 +51,11 @@ export interface BackfillSummary {
   succeeded: number;
   failed: number;
   skippedUpToDate: number;
+  /** True when the signal or the deadline stopped the run before every scheme was attempted. */
   aborted: boolean;
 }
 
-const DEFAULT_CONCURRENCY = 4;
+const DEFAULT_CONCURRENCY = 8;
 const PROGRESS_EVERY = 100;
 
 export function isUpToDate(
@@ -63,14 +67,22 @@ export function isUpToDate(
   return state.lastNavDate !== null && state.lastNavDate >= entry.latestDate;
 }
 
-async function loadStates(db: Database, codes: readonly number[]) {
-  const out = new Map<number, { lastNavDate: string | null; lastSuccessAt: Date | null }>();
+export interface IngestStateRow {
+  lastNavDate: string | null;
+  lastNav: number | null;
+  lastSuccessAt: Date | null;
+}
+
+/** `ingest_state` rows for `codes`, keyed by scheme code (absent = never attempted). */
+export async function loadStates(db: Database, codes: readonly number[]): Promise<Map<number, IngestStateRow>> {
+  const out = new Map<number, IngestStateRow>();
   const CHUNK = 5000;
   for (let i = 0; i < codes.length; i += CHUNK) {
     const rows = await db
       .select({
         schemeCode: ingestState.schemeCode,
         lastNavDate: ingestState.lastNavDate,
+        lastNav: ingestState.lastNav,
         lastSuccessAt: ingestState.lastSuccessAt,
       })
       .from(ingestState)
@@ -115,18 +127,21 @@ export async function runBackfill(deps: BackfillDeps): Promise<BackfillSummary> 
     aborted: false,
   };
 
-  let next = 0;
-  async function worker(): Promise<void> {
-    while (!signal?.aborted && next < todo.length) {
-      const entry = todo[next++];
+  const pool = await forEachConcurrent(
+    todo,
+    async (entry) => {
       summary.attempted++;
       const attemptAt = now();
       try {
         const history = await mfapi.getSchemeHistory(entry.schemeCode);
         const points = toNavPoints(history.data);
-        await store.appendPoints(String(entry.schemeCode), points);
-        const lastNavDate = points.reduce<string | null>((max, p) => (max === null || p.date > max ? p.date : max), null);
-        await recordState(db, entry.schemeCode, { attemptAt, lastNavDate, error: null, successAt: now() });
+        // mfapi returns the full history, so a scheme with no stored series is
+        // written outright; merging (one extra storage read) is only needed
+        // when an earlier run already stored something.
+        if (states.get(entry.schemeCode)?.lastSuccessAt) await store.appendPoints(String(entry.schemeCode), points);
+        else await store.putSeries(String(entry.schemeCode), points);
+        const head = points.reduce<(typeof points)[number] | null>((max, p) => (max === null || p.date > max.date ? p : max), null);
+        await recordState(db, entry.schemeCode, { attemptAt, lastNavDate: head?.date ?? null, lastNav: head?.nav ?? null, error: null, successAt: now() });
         summary.succeeded++;
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error);
@@ -134,14 +149,15 @@ export async function runBackfill(deps: BackfillDeps): Promise<BackfillSummary> 
         summary.failed++;
         log(`scheme ${entry.schemeCode} failed: ${message}`);
       }
-      if (summary.attempted % PROGRESS_EVERY === 0) {
-        log(`progress: ${summary.attempted}/${todo.length} (ok ${summary.succeeded}, failed ${summary.failed})`);
+      const finished = summary.succeeded + summary.failed;
+      if (finished % PROGRESS_EVERY === 0) {
+        log(`progress: ${finished}/${todo.length} (ok ${summary.succeeded}, failed ${summary.failed})`);
       }
-    }
-  }
-  await Promise.all(Array.from({ length: concurrency }, worker));
+    },
+    { concurrency, signal, deadline: deps.deadline, now: () => now().getTime() }
+  );
 
-  summary.aborted = signal?.aborted ?? false;
+  summary.aborted = pool.stoppedEarly;
   log(
     `backfill ${summary.aborted ? "interrupted" : "done"}: ok ${summary.succeeded}, failed ${summary.failed}, skipped ${summary.skippedUpToDate}`
   );
@@ -152,7 +168,7 @@ export async function runBackfill(deps: BackfillDeps): Promise<BackfillSummary> 
 export async function recordState(
   db: Database,
   schemeCode: number,
-  update: { attemptAt: Date; lastNavDate: string | null | undefined; error: string | null; successAt: Date | undefined }
+  update: { attemptAt: Date; lastNavDate: string | null | undefined; lastNav?: number | null; error: string | null; successAt: Date | undefined }
 ): Promise<void> {
   const success = update.successAt !== undefined;
   await db
@@ -160,6 +176,7 @@ export async function recordState(
     .values({
       schemeCode,
       lastNavDate: update.lastNavDate ?? null,
+      lastNav: update.lastNav ?? null,
       lastAttemptAt: update.attemptAt,
       lastSuccessAt: update.successAt ?? null,
       lastError: update.error,
@@ -170,7 +187,7 @@ export async function recordState(
         lastAttemptAt: update.attemptAt,
         lastError: update.error,
         updatedAt: sql`now()`,
-        ...(success ? { lastNavDate: update.lastNavDate ?? null, lastSuccessAt: update.successAt } : {}),
+        ...(success ? { lastNavDate: update.lastNavDate ?? null, lastNav: update.lastNav ?? null, lastSuccessAt: update.successAt } : {}),
       },
     });
 }

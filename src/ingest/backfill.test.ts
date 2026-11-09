@@ -152,6 +152,18 @@ describe("runBackfill", () => {
     expect(cleared.lastError).toBeNull();
   });
 
+  it("stops starting schemes after the deadline and records lastNav", async () => {
+    let clock = Date.parse("2026-11-01T00:00:00Z");
+    const mfapi = new FakeMfApi();
+    mfapi.onCall = () => {
+      clock += 60_000;
+    };
+    const summary = await runBackfill(deps(mfapi, { concurrency: 1, deadline: Date.parse("2026-11-01T00:02:00Z"), now: () => new Date(clock) }));
+    expect(summary).toMatchObject({ attempted: 2, succeeded: 2, aborted: true });
+    const [state] = await db.select().from(ingestState).where(eq(ingestState.schemeCode, 100001));
+    expect(state).toMatchObject({ lastNavDate: "2026-10-30", lastNav: 14 });
+  });
+
   it("honours --codes", async () => {
     const byCodes = new FakeMfApi();
     await runBackfill(deps(byCodes, { codes: [100002, 100004] }));

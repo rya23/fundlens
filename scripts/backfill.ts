@@ -2,8 +2,11 @@
  * NAV backfill CLI (`npm run backfill`). Idempotent and resumable: re-run it
  * after any interruption and it only fetches what is missing or stale.
  *
- *   npm run backfill -- [--limit N] [--codes 122639,119528] [--concurrency N]
+ *   npm run backfill -- [--limit N] [--codes 122639,119528] [--concurrency N] [--max-minutes N]
  *
+ * --max-minutes stops starting new schemes after N minutes and exits cleanly,
+ * so CI can still run benchmarks/precompute inside its job time limit. The
+ * next run picks up where this one stopped.
  * Reads DATABASE_URL / NAV_STORE (and R2_*) via src/lib/env.ts. Ctrl-C stops
  * after the in-flight schemes finish; progress is already persisted.
  */
@@ -11,6 +14,7 @@ import { parseArgs } from "node:util";
 
 import { closeDb, createDb } from "../src/db/client";
 import { runBackfill } from "../src/ingest/backfill";
+import { deadlineFromMinutes } from "../src/ingest/pool";
 import { MfApiClient } from "../src/ingest/sources/mfapi";
 import { TigZigMetadataSource } from "../src/ingest/sources/metadata";
 import { getEnv } from "../src/lib/env";
@@ -38,6 +42,7 @@ async function main(): Promise<void> {
       limit: { type: "string" },
       codes: { type: "string" },
       concurrency: { type: "string" },
+      "max-minutes": { type: "string" },
     },
   });
 
@@ -59,8 +64,12 @@ async function main(): Promise<void> {
       codes: parseCodes(values.codes),
       concurrency: positiveInt("concurrency", values.concurrency),
       signal: controller.signal,
+      deadline: deadlineFromMinutes(positiveInt("max-minutes", values["max-minutes"])),
       log: (message) => console.log(`[${new Date().toISOString()}] ${message}`),
     });
+    if (summary.aborted) {
+      console.log("Stopped before every scheme was fetched; re-run (or let the nightly job) continue from here.");
+    }
     if (summary.failed > 0) {
       console.warn(`${summary.failed} scheme(s) failed; see ingest_state.last_error. Re-run to retry them.`);
     }

@@ -1,0 +1,1 @@
+ALTER TABLE "ingest_state" ADD COLUMN "last_nav" numeric;

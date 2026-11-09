@@ -21,7 +21,32 @@ export class RetryableHttpError extends Error {
   }
 }
 
+/**
+ * Spaces request starts at least `1000 / requestsPerSecond` ms apart across
+ * every caller sharing the instance. A per-request sleep (`throttleMs`) does
+ * not bound the aggregate rate once requests run concurrently; this does.
+ */
+export class RateLimiter {
+  private readonly intervalMs: number;
+  private nextSlot = 0;
+
+  constructor(requestsPerSecond: number, private readonly now: () => number = Date.now) {
+    if (!(requestsPerSecond > 0)) throw new Error("requestsPerSecond must be positive");
+    this.intervalMs = 1000 / requestsPerSecond;
+  }
+
+  /** Resolves when the caller may start its request. */
+  async acquire(): Promise<void> {
+    const now = this.now();
+    const slot = Math.max(now, this.nextSlot);
+    this.nextSlot = slot + this.intervalMs;
+    await sleep(slot - now);
+  }
+}
+
 export interface FetchRetryOptions {
+  /** Shared limiter consulted before every attempt, retries included. */
+  rateLimiter?: RateLimiter;
   /** Injectable fetch implementation, mainly for tests. Defaults to the global `fetch`. */
   fetchImpl?: typeof fetch;
   /** Number of attempts *after* the first one. Default 3 (4 attempts total). */
@@ -60,6 +85,7 @@ export async function fetchWithRetry(url: string, options: FetchRetryOptions = {
     backoffMs = 500,
     throttleMs = 0,
     headers,
+    rateLimiter,
   } = options;
 
   if (throttleMs > 0) {
@@ -69,6 +95,7 @@ export async function fetchWithRetry(url: string, options: FetchRetryOptions = {
   let lastError: unknown;
 
   for (let attempt = 0; attempt <= retries; attempt++) {
+    await rateLimiter?.acquire();
     const controller = new AbortController();
     const timeoutHandle = setTimeout(() => controller.abort(), timeoutMs);
     try {

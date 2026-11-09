@@ -35,9 +35,14 @@ npm run precompute
 ```
 
 Use a fresh local DB/NAV directory for real data to keep fictional funds out of
-real screens. Backfill is resumable; use `--codes 122639,119528` for specific schemes
-or `--concurrency 4` to control parallel downloads. Run `npm run nightly` to refresh
-latest NAVs, metadata, benchmarks, metrics, and category statistics.
+real screens. Backfill is resumable; use `--codes 122639,119528` for specific schemes,
+`--concurrency N` to control parallel work, and `--max-minutes N` to stop cleanly
+after a time budget. mfapi.in returns HTTP 429 above about 10 requests/second, so
+every mfapi call shares a 5 requests/second limiter; a full backfill of about 8.4k
+schemes takes roughly 30-60 minutes. Run `npm run nightly` to refresh latest NAVs,
+metadata, benchmarks, metrics, and category statistics. The nightly job also
+fetches the full history of any scheme that has none stored yet, so an
+interrupted backfill is completed by later nightly runs.
 
 ## Deploy with Supabase and Vercel
 

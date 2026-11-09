@@ -221,6 +221,8 @@ export const ingestState = pgTable("ingest_state", {
     .primaryKey()
     .references(() => schemes.schemeCode, { onDelete: "cascade" }),
   lastNavDate: date("last_nav_date", { mode: "string" }),
+  /** NAV stored for `lastNavDate`, so the nightly job can spot same-day corrections without reading the series. */
+  lastNav: numeric("last_nav", { mode: "number" }),
   lastAttemptAt: timestamp("last_attempt_at", { withTimezone: true, mode: "date" }),
   lastSuccessAt: timestamp("last_success_at", { withTimezone: true, mode: "date" }),
   lastError: text("last_error"),
